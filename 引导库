@@ -1,0 +1,108 @@
+-- MenuLibrary.lua (ModuleScript)
+local MenuLibrary = {}
+
+function MenuLibrary.CreateMenu(title, buttons)
+    local menu = {}
+
+    -- 创建 ScreenGui 作为菜单的根容器
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "CustomMenuGui"
+    menu.ScreenGui = screenGui
+
+    -- 创建菜单主框架 (Frame)
+    local frame = Instance.new("Frame")
+    frame.Name = "MenuFrame"
+    frame.Size = UDim2.new(0, 200, 0, 300)
+    frame.Position = UDim2.new(1, -210, 0, 10) -- 初始位置在屏幕右侧
+    frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40) -- 深灰色背景
+    frame.BorderSizePixel = 0
+    frame.Visible = false -- 初始不可见
+    frame.Parent = screenGui
+    menu.Frame = frame
+
+    -- 添加圆角效果
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 10)
+    corner.Parent = frame
+
+    -- 创建标题
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Name = "Title"
+    titleLabel.Size = UDim2.new(1, 0, 0, 50)
+    titleLabel.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- 更深的标题栏
+    titleLabel.Text = title
+    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.TextScaled = true
+    titleLabel.Font = Enum.Font.SourceSansBold
+    titleLabel.Parent = frame
+
+    -- 创建按钮容器
+    local buttonContainer = Instance.new("Frame")
+    buttonContainer.Name = "ButtonContainer"
+    buttonContainer.Size = UDim2.new(1, 0, 1, -50)
+    buttonContainer.Position = UDim2.new(0, 0, 0, 50)
+    buttonContainer.BackgroundTransparency = 1
+    buttonContainer.Parent = frame
+
+    -- 添加 UIListLayout 来自动排列按钮
+    local listLayout = Instance.new("UIListLayout")
+    listLayout.Padding = UDim.new(0, 10)
+    listLayout.Parent = buttonContainer
+
+    -- 添加按钮
+    for _, buttonData in ipairs(buttons) do
+        local button = Instance.new("TextButton")
+        button.Name = buttonData.Text
+        button.Size = UDim2.new(1, -20, 0, 40)
+        button.Position = UDim2.new(0, 10, 0, 0)
+        button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        button.Text = buttonData.Text
+        button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        button.TextScaled = true
+        button.Font = Enum.Font.SourceSans
+        button.Parent = buttonContainer
+
+        -- 添加圆角
+        local btnCorner = Instance.new("UICorner")
+        btnCorner.CornerRadius = UDim.new(0, 5)
+        btnCorner.Parent = button
+
+        -- 点击事件
+        button.MouseButton1Click:Connect(buttonData.Callback)
+    end
+
+    -- 创建图标按钮
+    local iconButton = Instance.new("ImageButton")
+    iconButton.Name = "MenuIcon"
+    iconButton.Size = UDim2.new(0, 50, 0, 50)
+    iconButton.Position = UDim2.new(1, -60, 0, 10)
+    iconButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    iconButton.Image = "rbxassetid://1234567890" -- 替换为实际的图标图像 ID
+    iconButton.Parent = screenGui
+    menu.IconButton = iconButton
+
+    -- 添加动画支持
+    local tweenService = game:GetService("TweenService")
+    local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    menu.IsOpen = false
+
+    function menu:ToggleMenu()
+        if self.IsOpen then
+            -- 收起菜单
+            local tween = tweenService:Create(self.Frame, tweenInfo, {Position = UDim2.new(1, 0, 0, 10)})
+            tween:Play()
+            tween.Completed:Wait()
+            self.Frame.Visible = false
+        else
+            -- 展开菜单
+            self.Frame.Visible = true
+            local tween = tweenService:Create(self.Frame, tweenInfo, {Position = UDim2.new(1, -210, 0, 10)})
+            tween:Play()
+        end
+        self.IsOpen = not self.IsOpen
+    end
+
+    return menu
+end
+
+return MenuLibrary
