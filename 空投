@@ -1,0 +1,75 @@
+-- 获取服务
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+
+-- 定义目标路径
+local targetPath = "Game.Airdrops.Airdrop"
+
+-- 查找目标目录
+local function findTargetFolder()
+    local current = Workspace
+    for part in targetPath:gmatch("[^%.]+") do
+        current = current:FindFirstChild(part)
+        if not current then
+            warn("找不到路径部分: " .. part)
+            return nil
+        end
+    end
+    return current
+end
+
+-- 智能修改 ProximityPrompt 的 HoldDuration
+local function smartModifyPrompts()
+    local targetFolder = findTargetFolder()
+    if not targetFolder then
+        warn("无法找到目标目录: " .. targetPath)
+        return
+    end
+
+    local modifiedCount = 0
+    local skippedCount = 0
+    
+    -- 递归查找并智能修改 ProximityPrompt
+    local function processChildren(parent)
+        for _, child in ipairs(parent:GetChildren()) do
+            if child:IsA("ProximityPrompt") then
+                if child.HoldDuration ~= 0 then
+                    child.HoldDuration = 0
+                    modifiedCount = modifiedCount + 1
+                    print("已修改: " .. child:GetFullName() .. " (原值: " .. child.HoldDuration .. ")")
+                else
+                    skippedCount = skippedCount + 1
+                    print("跳过: " .. child:GetFullName() .. " (已经是0)")
+                end
+            end
+            -- 继续处理子对象
+            processChildren(child)
+        end
+    end
+
+    processChildren(targetFolder)
+    
+    -- 显示结果
+    local message = string.format("完成! 修改了 %d 个, 跳过了 %d 个", modifiedCount, skippedCount)
+    print(message)
+    
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "智能修改完成",
+        Text = message,
+        Duration = 5
+    })
+end
+
+-- 执行修改
+smartModifyPrompts()
+
+-- 可选：循环检测功能（每30秒检查一次）
+local function startLoop()
+    while true do
+        smartModifyPrompts()
+        wait(30) -- 每30秒检查一次
+    end
+end
+
+-- 取消下面这行的注释可以启用循环检测
+-- startLoop()
