@@ -1,57 +1,65 @@
-local AdvancedMenuLib = {}
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
-local SoundService = game:GetService("SoundService")
+-- RainbowUI Library (模仿您提供的模板风格)
+-- 版本: 1.0
+-- 作者: AI助手
+
+local RainbowUI = {}
+RainbowUI.__index = RainbowUI
 
 -- 默认配置
 local DEFAULT_CONFIG = {
-    primaryColor = Color3.fromRGB(25, 25, 25),
-    secondaryColor = Color3.fromRGB(45, 45, 45),
-    accentColor = Color3.fromRGB(255, 255, 255),
-    transitionTime = 0.25,
-    size = UDim2.new(0.4, 0, 0.6, 0),
-    position = UDim2.new(0.3, 0, 0.2, 0),
-    clickSoundId = "rbxassetid://131290599",
-    hoverSoundId = "rbxassetid://138080862"
+    Title = "彩虹UI",
+    Version = "1.0",
+    PrimaryColor = Color3.fromRGB(25, 25, 25),
+    SecondaryColor = Color3.fromRGB(45, 45, 45),
+    AccentColor = Color3.fromRGB(0, 170, 255),
+    Size = UDim2.new(0.35, 0, 0.5, 0),
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    RainbowSpeed = 1
 }
 
--- 私有变量
-local menuInstances = {}
-local sounds = {}
-
--- 初始化音效
-local function initSounds(config)
-    sounds.click = Instance.new("Sound")
-    sounds.click.SoundId = config.clickSoundId
-    sounds.click.Volume = 0.5
-    sounds.click.Parent = SoundService
+-- 创建新窗口
+function RainbowUI:Create(Title, Version)
+    local self = setmetatable({}, RainbowUI)
+    self.Config = table.clone(DEFAULT_CONFIG)
+    self.Config.Title = Title or DEFAULT_CONFIG.Title
+    self.Config.Version = Version or DEFAULT_CONFIG.Version
+    self.Tabs = {}
     
-    sounds.hover = Instance.new("Sound")
-    sounds.hover.SoundId = config.hoverSoundId
-    sounds.hover.Volume = 0.3
-    sounds.hover.Parent = SoundService
+    -- 初始化UI
+    self:InitUI()
+    return self
 end
 
--- 创建基础UI元素
-local function createBaseElement(parent, config)
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "AdvancedMenu"
-    screenGui.ResetOnSpawn = false
+-- 初始化UI
+function RainbowUI:InitUI()
+    -- 创建ScreenGui
+    self.ScreenGui = Instance.new("ScreenGui")
+    self.ScreenGui.Name = "RainbowUI"
+    self.ScreenGui.ResetOnSpawn = false
+    self.ScreenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
     
-    local mainFrame = Instance.new("Frame")
-    mainFrame.Name = "MainFrame"
-    mainFrame.Size = config.size
-    mainFrame.Position = config.position
-    mainFrame.BackgroundTransparency = 1
-    mainFrame.Parent = screenGui
+    -- 主窗口
+    self.MainFrame = Instance.new("Frame")
+    self.MainFrame.Name = "MainFrame"
+    self.MainFrame.Size = self.Config.Size
+    self.MainFrame.Position = self.Config.Position
+    self.MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    self.MainFrame.BackgroundColor3 = self.Config.PrimaryColor
+    self.MainFrame.Parent = self.ScreenGui
     
-    -- 渐变边框
-    local gradientBorder = Instance.new("Frame")
-    gradientBorder.Name = "GradientBorder"
-    gradientBorder.Size = UDim2.new(1, 6, 1, 6)
-    gradientBorder.Position = UDim2.new(0, -3, 0, -3)
-    gradientBorder.BackgroundTransparency = 1
-    gradientBorder.Parent = mainFrame
+    -- 圆角
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = self.MainFrame
+    
+    -- 彩虹边框
+    self.BorderFrame = Instance.new("Frame")
+    self.BorderFrame.Name = "Border"
+    self.BorderFrame.Size = UDim2.new(1, 6, 1, 6)
+    self.BorderFrame.Position = UDim2.new(0, -3, 0, -3)
+    self.BorderFrame.BackgroundTransparency = 1
+    self.BorderFrame.ZIndex = -1
+    self.BorderFrame.Parent = self.MainFrame
     
     local gradient = Instance.new("UIGradient")
     gradient.Rotation = 90
@@ -63,369 +71,225 @@ local function createBaseElement(parent, config)
         ColorSequenceKeypoint.new(0.8, Color3.fromRGB(0, 0, 255)),
         ColorSequenceKeypoint.new(1, Color3.fromRGB(75, 0, 130))
     })
-    gradient.Parent = gradientBorder
+    gradient.Parent = self.BorderFrame
     
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 12)
-    corner.Parent = gradientBorder
-    
-    -- 主内容框架
-    local contentFrame = Instance.new("Frame")
-    contentFrame.Size = UDim2.new(1, 0, 1, 0)
-    contentFrame.BackgroundColor3 = config.primaryColor
-    contentFrame.Parent = mainFrame
-    contentFrame.ClipsDescendants = true
-    
-    local innerCorner = Instance.new("UICorner")
-    innerCorner.CornerRadius = UDim.new(0, 10)
-    innerCorner.Parent = contentFrame
+    local borderCorner = Instance.new("UICorner")
+    borderCorner.CornerRadius = UDim.new(0, 10)
+    borderCorner.Parent = self.BorderFrame
     
     -- 标题栏
-    local titleBar = Instance.new("Frame")
-    titleBar.Size = UDim2.new(1, 0, 0, 40)
-    titleBar.BackgroundColor3 = config.secondaryColor
-    titleBar.Parent = contentFrame
+    self.TitleBar = Instance.new("Frame")
+    self.TitleBar.Name = "TitleBar"
+    self.TitleBar.Size = UDim2.new(1, 0, 0, 30)
+    self.TitleBar.BackgroundColor3 = self.Config.SecondaryColor
+    self.TitleBar.Parent = self.MainFrame
     
     local titleCorner = Instance.new("UICorner")
-    titleCorner.CornerRadius = UDim.new(0, 10)
-    titleCorner.Parent = titleBar
+    titleCorner.CornerRadius = UDim.new(0, 8)
+    titleCorner.Parent = self.TitleBar
     
-    local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, -40, 1, 0)
-    title.Position = UDim2.new(0, 10, 0, 0)
-    title.Text = "高级游戏菜单"
-    title.Font = Enum.Font.GothamBold
-    title.TextColor3 = config.accentColor
-    title.TextSize = 18
-    title.BackgroundTransparency = 1
-    title.TextXAlignment = Enum.TextXAlignment.Left
-    title.Parent = titleBar
+    self.TitleLabel = Instance.new("TextLabel")
+    self.TitleLabel.Name = "Title"
+    self.TitleLabel.Size = UDim2.new(1, -60, 1, 0)
+    self.TitleLabel.Position = UDim2.new(0, 10, 0, 0)
+    self.TitleLabel.Text = self.Config.Title .. " | v" .. self.Config.Version
+    self.TitleLabel.TextColor3 = self.Config.AccentColor
+    self.TitleLabel.Font = Enum.Font.GothamBold
+    self.TitleLabel.TextSize = 14
+    self.TitleLabel.BackgroundTransparency = 1
+    self.TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    self.TitleLabel.Parent = self.TitleBar
     
-    -- 关闭按钮
-    local closeButton = Instance.new("TextButton")
-    closeButton.Size = UDim2.new(0, 30, 0, 30)
-    closeButton.Position = UDim2.new(1, -35, 0.5, -15)
-    closeButton.Text = "X"
-    closeButton.Font = Enum.Font.GothamBold
-    closeButton.TextColor3 = config.accentColor
-    closeButton.TextSize = 18
-    closeButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-    closeButton.Parent = titleBar
+    -- 标签页容器
+    self.TabContainer = Instance.new("Frame")
+    self.TabContainer.Name = "TabContainer"
+    self.TabContainer.Size = UDim2.new(1, 0, 1, -30)
+    self.TabContainer.Position = UDim2.new(0, 0, 0, 30)
+    self.TabContainer.BackgroundTransparency = 1
+    self.TabContainer.Parent = self.MainFrame
     
-    local closeCorner = Instance.new("UICorner")
-    closeCorner.CornerRadius = UDim.new(0, 6)
-    closeCorner.Parent = closeButton
-    
-    -- 左右面板容器
-    local leftPanel = Instance.new("Frame")
-    leftPanel.Name = "LeftPanel"
-    leftPanel.Size = UDim2.new(0.3, 0, 1, -40)
-    leftPanel.Position = UDim2.new(0, 0, 0, 40)
-    leftPanel.BackgroundTransparency = 1
-    leftPanel.Parent = contentFrame
-    
-    local leftLayout = Instance.new("UIListLayout")
-    leftLayout.Padding = UDim.new(0, 10)
-    leftLayout.Parent = leftPanel
-    
-    local rightPanel = Instance.new("Frame")
-    rightPanel.Name = "RightPanel"
-    rightPanel.Size = UDim2.new(0.7, -10, 1, -50)
-    rightPanel.Position = UDim2.new(0.3, 10, 0, 40)
-    rightPanel.BackgroundColor3 = config.secondaryColor
-    rightPanel.Parent = contentFrame
-    
-    local rightCorner = Instance.new("UICorner")
-    rightCorner.CornerRadius = UDim.new(0, 8)
-    rightCorner.Parent = rightPanel
-    
-    -- 存储实例引用
-    menuInstances[parent] = {
-        screenGui = screenGui,
-        mainFrame = mainFrame,
-        contentFrame = contentFrame,
-        leftPanel = leftPanel,
-        rightPanel = rightPanel,
-        titleBar = titleBar,
-        config = config
-    }
-    
-    -- 边框旋转动画
+    -- 彩虹动画
     spawn(function()
-        while menuInstances[parent] do
-            gradient.Rotation = gradient.Rotation + 0.5
-            wait(0.01)
+        while self.BorderFrame do
+            gradient.Rotation = gradient.Rotation + self.Config.RainbowSpeed
+            wait()
             if gradient.Rotation >= 360 then
                 gradient.Rotation = 0
             end
         end
     end)
     
-    -- 使主窗口可拖动
-    local function makeDraggable(frame, handle)
-        local dragging = false
-        local dragInput, dragStart, startPos
-        
-        handle.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                dragging = true
-                dragStart = input.Position
-                startPos = frame.Position
-                
-                input.Changed:Connect(function()
-                    if input.UserInputState == Enum.UserInputState.End then
-                        dragging = false
-                    end
-                end)
-            end
-        end)
-        
-        handle.InputChanged:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseMovement then
-                dragInput = input
-            end
-        end)
-        
-        UserInputService.InputChanged:Connect(function(input)
-            if input == dragInput and dragging then
-                local delta = input.Position - dragStart
-                frame.Position = UDim2.new(
-                    startPos.X.Scale, 
-                    startPos.X.Offset + delta.X,
-                    startPos.Y.Scale, 
-                    startPos.Y.Offset + delta.Y
-                )
-            end
-        end)
-    end
-    
-    makeDraggable(mainFrame, titleBar)
-    
-    -- 关闭按钮功能
-    closeButton.MouseButton1Click:Connect(function()
-        sounds.click:Play()
-        TweenService:Create(
-            mainFrame,
-            TweenInfo.new(0.3),
-            {Size = UDim2.new(0, 0, 0, 0)}
-        ):Play()
-        wait(0.3)
-        screenGui:Destroy()
-        menuInstances[parent] = nil
-    end)
-    
-    return screenGui
+    -- 拖动功能
+    self:Draggable(self.MainFrame, self.TitleBar)
 end
 
--- 创建游戏选择按钮
-function AdvancedMenuLib.createGameButton(parent, gameName, iconId, onClick)
-    if not menuInstances[parent] then return end
+-- 创建标签页
+function RainbowUI:tab(TabName, Default)
+    local tab = {
+        Name = TabName,
+        Buttons = {}
+    }
     
-    local config = menuInstances[parent].config
-    local leftPanel = menuInstances[parent].leftPanel
-    
-    local button = Instance.new("TextButton")
-    button.Name = gameName
-    button.Size = UDim2.new(1, 0, 0, 60)
-    button.BackgroundColor3 = config.secondaryColor
-    button.Text = ""
-    button.AutoButtonColor = false
-    
-    local buttonCorner = Instance.new("UICorner")
-    buttonCorner.CornerRadius = UDim.new(0, 8)
-    buttonCorner.Parent = button
-    
-    local icon = Instance.new("ImageLabel")
-    icon.Name = "Icon"
-    icon.Size = UDim2.new(0, 30, 0, 30)
-    icon.Position = UDim2.new(0, 15, 0.5, -15)
-    icon.Image = iconId
-    icon.BackgroundTransparency = 1
-    icon.Parent = button
-    
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -60, 1, 0)
-    label.Position = UDim2.new(0, 60, 0, 0)
-    label.Text = gameName
-    label.Font = Enum.Font.GothamBold
-    label.TextColor3 = config.accentColor
-    label.TextSize = 16
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.BackgroundTransparency = 1
-    label.Parent = button
-    
-    -- 悬停动画
-    button.MouseEnter:Connect(function()
-        TweenService:Create(
-            button,
-            TweenInfo.new(config.transitionTime),
-            {BackgroundColor3 = config.secondaryColor:Lighten(0.1)}
-        ):Play()
-        sounds.hover:Play()
-    end)
-    
-    button.MouseLeave:Connect(function()
-        TweenService:Create(
-            button,
-            TweenInfo.new(config.transitionTime),
-            {BackgroundColor3 = config.secondaryColor}
-        ):Play()
-    end)
-    
-    -- 点击动画
-    button.MouseButton1Down:Connect(function()
-        TweenService:Create(
-            button,
-            TweenInfo.new(0.1),
-            {Size = UDim2.new(0.95, 0, 0, 55)}
-        ):Play()
-    end)
-    
-    button.MouseButton1Up:Connect(function()
-        TweenService:Create(
-            button,
-            TweenInfo.new(0.1),
-            {Size = UDim2.new(1, 0, 0, 60)}
-        ):Play()
-    end)
-    
-    -- 点击事件
-    button.MouseButton1Click:Connect(function()
-        sounds.click:Play()
-        if onClick then onClick() end
-    end)
-    
-    button.Parent = leftPanel
-    return button
-end
-
--- 创建功能按钮
-function AdvancedMenuLib.createFeatureButton(parent, featureName, iconId, onClick)
-    if not menuInstances[parent] then return end
-    
-    local config = menuInstances[parent].config
-    
-    local button = Instance.new("TextButton")
-    button.Name = featureName
-    button.Size = UDim2.new(1, -20, 0, 70)
-    button.BackgroundColor3 = config.primaryColor
-    button.Text = ""
-    button.AutoButtonColor = false
+    -- 创建标签按钮
+    local tabButton = Instance.new("TextButton")
+    tabButton.Name = TabName
+    tabButton.Size = UDim2.new(0, 100, 0, 25)
+    tabButton.Position = UDim2.new(0, 10 + (#self.Tabs * 110), 0, 2)
+    tabButton.Text = TabName
+    tabButton.TextColor3 = self.Config.AccentColor
+    tabButton.Font = Enum.Font.Gotham
+    tabButton.TextSize = 12
+    tabButton.BackgroundColor3 = self.Config.SecondaryColor
+    tabButton.AutoButtonColor = false
+    tabButton.Parent = self.TitleBar
     
     local buttonCorner = Instance.new("UICorner")
     buttonCorner.CornerRadius = UDim.new(0, 6)
-    buttonCorner.Parent = button
+    buttonCorner.Parent = tabButton
     
-    local icon = Instance.new("ImageLabel")
-    icon.Name = "Icon"
-    icon.Size = UDim2.new(0, 30, 0, 30)
-    icon.Position = UDim2.new(0, 15, 0.5, -15)
-    icon.Image = iconId
-    icon.BackgroundTransparency = 1
-    icon.Parent = button
-    
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -60, 1, 0)
-    label.Position = UDim2.new(0, 60, 0, 0)
-    label.Text = featureName
-    label.Font = Enum.Font.Gotham
-    label.TextColor3 = config.accentColor
-    label.TextSize = 14
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.BackgroundTransparency = 1
-    label.Parent = button
-    
-    -- 悬停动画
-    button.MouseEnter:Connect(function()
-        TweenService:Create(
-            button,
-            TweenInfo.new(config.transitionTime),
-            {BackgroundColor3 = config.primaryColor:Lighten(0.1)}
-        ):Play()
-        sounds.hover:Play()
-    end)
-    
-    button.MouseLeave:Connect(function()
-        TweenService:Create(
-            button,
-            TweenInfo.new(config.transitionTime),
-            {BackgroundColor3 = config.primaryColor}
-        ):Play()
-    end)
-    
-    -- 点击动画
-    button.MouseButton1Down:Connect(function()
-        TweenService:Create(
-            button,
-            TweenInfo.new(0.1),
-            {Size = UDim2.new(0.95, -20, 0, 65)}
-        ):Play()
-    end)
-    
-    button.MouseButton1Up:Connect(function()
-        TweenService:Create(
-            button,
-            TweenInfo.new(0.1),
-            {Size = UDim2.new(1, -20, 0, 70)}
-        ):Play()
-    end)
-    
-    -- 点击事件
-    button.MouseButton1Click:Connect(function()
-        sounds.click:Play()
-        if onClick then onClick() end
-    end)
-    
-    return button
-end
-
--- 创建功能面板
-function AdvancedMenuLib.createFeaturePanel(parent, panelName)
-    if not menuInstances[parent] then return end
-    
-    local rightPanel = menuInstances[parent].rightPanel
-    
-    -- 隐藏所有现有面板
-    for _, child in ipairs(rightPanel:GetChildren()) do
-        if child:IsA("ScrollingFrame") then
-            child.Visible = false
-        end
-    end
-    
-    -- 创建新面板
-    local scrollFrame = Instance.new("ScrollingFrame")
-    scrollFrame.Name = panelName
-    scrollFrame.Size = UDim2.new(1, -20, 1, -20)
-    scrollFrame.Position = UDim2.new(0, 10, 0, 10)
-    scrollFrame.BackgroundTransparency = 1
-    scrollFrame.ScrollBarThickness = 5
-    scrollFrame.Visible = true
-    scrollFrame.Parent = rightPanel
+    -- 创建内容框架
+    local contentFrame = Instance.new("ScrollingFrame")
+    contentFrame.Name = TabName .. "_Content"
+    contentFrame.Size = UDim2.new(1, -20, 1, -20)
+    contentFrame.Position = UDim2.new(0, 10, 0, 10)
+    contentFrame.BackgroundTransparency = 1
+    contentFrame.ScrollBarThickness = 5
+    contentFrame.Visible = Default or false
+    contentFrame.Parent = self.TabContainer
     
     local layout = Instance.new("UIListLayout")
     layout.Padding = UDim.new(0, 10)
-    layout.Parent = scrollFrame
+    layout.Parent = contentFrame
     
     -- 自动调整画布大小
     layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
+        contentFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
     end)
     
-    return scrollFrame
-end
-
--- 初始化菜单
-function AdvancedMenuLib.init(parent, config)
-    config = config or {}
-    -- 合并默认配置和自定义配置
-    for k, v in pairs(DEFAULT_CONFIG) do
-        if config[k] == nil then
-            config[k] = v
+    -- 标签按钮点击事件
+    tabButton.MouseButton1Click:Connect(function()
+        for _, frame in ipairs(self.TabContainer:GetChildren()) do
+            if frame:IsA("ScrollingFrame") then
+                frame.Visible = false
+            end
         end
+        contentFrame.Visible = true
+    end)
+    
+    -- 添加按钮方法
+    function tab:button(Text, Callback)
+        local button = Instance.new("TextButton")
+        button.Name = Text
+        button.Size = UDim2.new(1, 0, 0, 30)
+        button.Text = Text
+        button.TextColor3 = self.Config.AccentColor
+        button.Font = Enum.Font.Gotham
+        button.TextSize = 14
+        button.BackgroundColor3 = self.Config.SecondaryColor
+        button.AutoButtonColor = false
+        button.Parent = contentFrame
+        
+        local buttonCorner = Instance.new("UICorner")
+        buttonCorner.CornerRadius = UDim.new(0, 6)
+        buttonCorner.Parent = button
+        
+        -- 悬停效果
+        button.MouseEnter:Connect(function()
+            game:GetService("TweenService"):Create(
+                button,
+                TweenInfo.new(0.2),
+                {BackgroundColor3 = self.Config.SecondaryColor:Lighten(0.1)}
+            ):Play()
+        end)
+        
+        button.MouseLeave:Connect(function()
+            game:GetService("TweenService"):Create(
+                button,
+                TweenInfo.new(0.2),
+                {BackgroundColor3 = self.Config.SecondaryColor}
+            ):Play()
+        end)
+        
+        -- 点击效果
+        button.MouseButton1Down:Connect(function()
+            game:GetService("TweenService"):Create(
+                button,
+                TweenInfo.new(0.1),
+                {Size = UDim2.new(0.95, 0, 0, 28)}
+            ):Play()
+        end)
+        
+        button.MouseButton1Up:Connect(function()
+            game:GetService("TweenService"):Create(
+                button,
+                TweenInfo.new(0.1),
+                {Size = UDim2.new(1, 0, 0, 30)}
+            ):Play()
+            if Callback then
+                Callback(button)
+            end
+        end)
+        
+        table.insert(self.Buttons, button)
+        return button
     end
     
-    initSounds(config)
-    return createBaseElement(parent, config)
+    -- 添加标签方法
+    function tab:label(Text)
+        local label = Instance.new("TextLabel")
+        label.Name = "Label_" .. Text
+        label.Size = UDim2.new(1, 0, 0, 20)
+        label.Text = Text
+        label.TextColor3 = self.Config.AccentColor
+        label.Font = Enum.Font.Gotham
+        label.TextSize = 12
+        label.BackgroundTransparency = 1
+        label.TextXAlignment = Enum.TextXAlignment.Left
+        label.Parent = contentFrame
+        
+        return label
+    end
+    
+    table.insert(self.Tabs, tab)
+    return tab
 end
 
-return AdvancedMenuLib
+-- 拖动功能
+function RainbowUI:Draggable(Frame, Handle)
+    local dragging = false
+    local dragInput, dragStart, startPos
+    
+    Handle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = Frame.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    
+    Handle.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = input
+        end
+    end)
+    
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            Frame.Position = UDim2.new(
+                startPos.X.Scale, 
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale, 
+                startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+end
+
+return RainbowUI
