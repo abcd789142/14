@@ -1418,46 +1418,51 @@ do
                     end
                 end
                 
-                -- dragging
-                do 
-                    local dCon
-                    local aCon
-                    local mainFrame = instances.mainFrame
-                    local targetPos
-                    
-                    titleBar.InputBegan:Connect(function(io) 
-                        if (io.UserInputType.Value == 0) then
-                            local rootPos = mainFrame.AbsolutePosition
-                            local startPos = io.Position
-                            
-                            startPos = Vector2.new(startPos.X, startPos.Y)
-                            
-                            targetPos = UDim2.fromOffset(rootPos.X, rootPos.Y)
-                            aCon = renderService.RenderStepped:Connect(function(dt) 
-                                mainFrame.Position = mainFrame.Position:lerp(targetPos, 1 - animSpeed^dt)-- 1 - 1e-12^dt)
-                            end)
-                            
-                            dCon = inputService.InputChanged:Connect(function(io) 
-                                if (io.UserInputType.Value == 4) then
-                                    local curPos = io.Position
-                                    curPos = Vector2.new(curPos.X, curPos.Y) 
-                                    
-                                    local dest = rootPos + (curPos - startPos)
-                                    targetPos = UDim2.fromOffset(dest.X, dest.Y)
-                                end
-                            end)
-                            
-                        end
-                    end)
-                    titleBar.InputEnded:Connect(function(io)
-                        if (io.UserInputType.Value == 0) then
-                            dCon:Disconnect()
-                            aCon:Disconnect()
-                            
-                            tween(mainFrame, {Position = targetPos}, 0.2, 1)
-                        end
-                    end)
+-- dragging
+do 
+    local dCon
+    local aCon
+    local mainFrame = instances.mainFrame
+    local targetPos
+    local dragging = false
+
+    -- 开始拖动（鼠标或触摸）
+    titleBar.InputBegan:Connect(function(io) 
+        if (io.UserInputType == Enum.UserInputType.MouseButton1 or io.UserInputType == Enum.UserInputType.Touch) then
+            dragging = true
+            local rootPos = mainFrame.AbsolutePosition
+            local startPos = Vector2.new(io.Position.X, io.Position.Y)
+
+            targetPos = UDim2.fromOffset(rootPos.X, rootPos.Y)
+            aCon = renderService.RenderStepped:Connect(function(dt) 
+                if dragging then
+                    mainFrame.Position = mainFrame.Position:Lerp(targetPos, 1 - animSpeed^dt)
                 end
+            end)
+
+            -- 处理拖动中的位置更新
+            dCon = inputService.InputChanged:Connect(function(io) 
+                if dragging then
+                    if (io.UserInputType == Enum.UserInputType.MouseMovement or io.UserInputType == Enum.UserInputType.Touch) then
+                        local curPos = Vector2.new(io.Position.X, io.Position.Y)
+                        local dest = rootPos + (curPos - startPos)
+                        targetPos = UDim2.fromOffset(dest.X, dest.Y)
+                    end
+                end
+            end)
+        end
+    end)
+
+    -- 结束拖动（鼠标或触摸）
+    titleBar.InputEnded:Connect(function(io)
+        if (io.UserInputType == Enum.UserInputType.MouseButton1 or io.UserInputType == Enum.UserInputType.Touch) then
+            dragging = false
+            if dCon then dCon:Disconnect() end
+            if aCon then aCon:Disconnect() end
+            tween(mainFrame, {Position = targetPos}, 0.2, 1)
+        end
+    end)
+end
                 -- resizing
                 if (resize) then
                     local dCon
