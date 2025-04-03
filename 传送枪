@@ -6,15 +6,15 @@ local weaponPositions = {
     ["MOSSBERG"] = CFrame.new(684, 6, -705),
     ["UZI"] = CFrame.new(684, 6, -698),
     ["M1911"] = CFrame.new(674, 6, -707),
-	["GLOCK"] = CFrame.new(669, 6, -708),
+    ["GLOCK"] = CFrame.new(669, 6, -708),
     ["DEAGLE"] = CFrame.new(363, 29, -259),
     ["RPG"] = CFrame.new(691, 6, -675),
-	["AUG"] = CFrame.new(1170, 44, -772),
-	["DOUBLE.BARREL"] = CFrame.new(1318, 8, -163),
-	["STAGECOACH"] = CFrame.new(1427, 6, -707),
-	["FLAMETHROWER"] = CFrame.new(1656, 26, -499),
-	["M4A1"] = CFrame.new(603, 28, -921),
-	["GLOCK.18"] = CFrame.new(564, 25, -1484),
+    ["AUG"] = CFrame.new(1170, 44, -772),
+    ["DOUBLE.BARREL"] = CFrame.new(1318, 8, -163),
+    ["STAGECOACH"] = CFrame.new(1427, 6, -707),
+    ["FLAMETHROWER"] = CFrame.new(1656, 26, -499),
+    ["M4A1"] = CFrame.new(603, 28, -921),
+    ["GLOCK.18"] = CFrame.new(564, 25, -1484),
     -- 可以继续添加更多武器...
 }
 
@@ -23,6 +23,7 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local qx = text
 
 -- 传送函数
 local function teleportToWeapon(weaponName)
