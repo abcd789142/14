@@ -1464,51 +1464,54 @@ do
     end)
 end
                 -- resizing
-                if (resize) then
-                    local dCon
-                    local aCon
-                    local mainFrame = instances.mainFrame
-                    local resizeHandle = instances.resizeHandle
-                    
-                    local targetSize
-                    
-                    resizeHandle.InputBegan:Connect(function(io) 
-                        if (io.UserInputType.Value == 0 and not new.minimized) then
-                            local rootSize = mainFrame.AbsoluteSize
-                            local startPos = io.Position
-                            
-                            startPos = Vector2.new(startPos.X, startPos.Y)
-                            
-                            targetSize = UDim2.fromOffset(rootSize.X, rootSize.Y)
-                            aCon = renderService.RenderStepped:Connect(function(dt) 
-                                mainFrame.Size = mainFrame.Size:lerp(targetSize, 1 - animSpeed^dt)-- 1 - 1e-12^dt)
-                                new.size = mainFrame.Size
-                            end)
-                            
-                            dCon = inputService.InputChanged:Connect(function(io) 
-                                if (io.UserInputType.Value == 4) then
-                                    local curPos = io.Position
-                                    curPos = Vector2.new(curPos.X, curPos.Y) 
-                                    
-                                    local dest = rootSize + (curPos - startPos)
-                                    targetSize = UDim2.fromOffset(math.clamp(dest.X, 400, 800), math.clamp(dest.Y, 300, 600))
-                                end
-                            end)
-                            
-                        end
-                    end)
-                    resizeHandle.InputEnded:Connect(function(io)
-                        if (io.UserInputType.Value == 0 and not new.minimized) then
-                            dCon:Disconnect()
-                            aCon:Disconnect()
-                            
-                            tween(mainFrame, {Size = targetSize}, 0.2, 1)
-                            new.size = targetSize
-                        end
-                    end)
-                else
-                    instances.resizeHandle.Visible = false
+if (resize) then
+    local dCon
+    local aCon
+    local mainFrame = instances.mainFrame
+    local resizeHandle = instances.resizeHandle
+    
+    local targetSize
+    local dragging = false
+
+    -- 输入开始（支持鼠标和触摸）
+    resizeHandle.InputBegan:Connect(function(io) 
+        if (io.UserInputType == Enum.UserInputType.MouseButton1 or io.UserInputType == Enum.UserInputType.Touch) and not new.minimized then
+            dragging = true
+            local rootSize = mainFrame.AbsoluteSize
+            local startPos = Vector2.new(io.Position.X, io.Position.Y)
+            
+            targetSize = UDim2.fromOffset(rootSize.X, rootSize.Y)
+            aCon = renderService.RenderStepped:Connect(function(dt) 
+                if dragging then
+                    mainFrame.Size = mainFrame.Size:Lerp(targetSize, 1 - animSpeed^dt)
+                    new.size = mainFrame.Size
                 end
+            end)
+            
+            -- 处理输入变化（鼠标移动或触摸移动）
+            dCon = inputService.InputChanged:Connect(function(io) 
+                if dragging and (io.UserInputType == Enum.UserInputType.MouseMovement or io.UserInputType == Enum.UserInputType.Touch) then
+                    local curPos = Vector2.new(io.Position.X, io.Position.Y)
+                    local dest = rootSize + (curPos - startPos)
+                    targetSize = UDim2.fromOffset(math.clamp(dest.X, 400, 800), math.clamp(dest.Y, 300, 600))
+                end
+            end)
+        end
+    end)
+
+    -- 输入结束（支持鼠标和触摸）
+    resizeHandle.InputEnded:Connect(function(io)
+        if (io.UserInputType == Enum.UserInputType.MouseButton1 or io.UserInputType == Enum.UserInputType.Touch) and dragging then
+            dragging = false
+            if dCon then dCon:Disconnect() end
+            if aCon then aCon:Disconnect() end
+            tween(mainFrame, {Size = targetSize}, 0.2, 1)
+            new.size = targetSize
+        end
+    end)
+else
+    instances.resizeHandle.Visible = false
+end
                 -- finalize stuff
                 instances.mainFrame.Parent = uiScreen
                 new.instances = instances
