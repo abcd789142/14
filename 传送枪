@@ -41,7 +41,7 @@ local function teleportToWeapon(weaponName)
 end
 
 -- 使用示例
-teleportToWeapon(text)  -- 传入要传送的武器名称
+teleportToWeapon(qx)  -- 传入要传送的武器名称
 
 -- 如果需要通过聊天命令触发
 game:GetService("Players").LocalPlayer.Chatted:Connect(function(message)
