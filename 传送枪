@@ -23,7 +23,7 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-local qx = text
+local qx = ""
 
 -- 传送函数
 local function teleportToWeapon(weaponName)
