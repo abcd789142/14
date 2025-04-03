@@ -1,0 +1,49 @@
+-- 武器位置库
+local weaponPositions = {
+    ["伤疤"] = CFrame.new(792, 81, -1207),
+    ["AR15"] = CFrame.new(681, 6, -719), 
+    ["AK47"] = CFrame.new(671, 6, -719),
+    ["MOSSBERG"] = CFrame.new(684, 6, -705),
+    ["UZI"] = CFrame.new(684, 6, -698),
+    ["M1911"] = CFrame.new(674, 6, -707),
+	["GLOCK"] = CFrame.new(669, 6, -708),
+    ["DEAGLE"] = CFrame.new(363, 29, -259),
+    ["RPG"] = CFrame.new(691, 6, -675),
+	["AUG"] = CFrame.new(1170, 44, -772),
+	["DOUBLE.BARREL"] = CFrame.new(1318, 8, -163),
+	["STAGECOACH"] = CFrame.new(1427, 6, -707),
+	["FLAMETHROWER"] = CFrame.new(1656, 26, -499),
+	["M4A1"] = CFrame.new(603, 28, -921),
+	["GLOCK.18"] = CFrame.new(564, 25, -1484),
+    -- 可以继续添加更多武器...
+}
+
+-- 获取玩家和角色
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+-- 传送函数
+local function teleportToWeapon(weaponName)
+    local position = weaponPositions[weaponName]
+    if position then
+        -- 安全检查
+        if character and humanoidRootPart then
+            humanoidRootPart.CFrame = position
+            print("已传送到 " .. weaponName .. " 位置")
+        else
+            warn("角色或HumanoidRootPart不存在")
+        end
+    else
+        warn("未找到武器: " .. weaponName)
+    end
+end
+
+-- 使用示例
+teleportToWeapon(text)  -- 传入要传送的武器名称
+
+-- 如果需要通过聊天命令触发
+game:GetService("Players").LocalPlayer.Chatted:Connect(function(message)
+    teleportToWeapon(message)  -- 输入武器名称即可传送
+end)
