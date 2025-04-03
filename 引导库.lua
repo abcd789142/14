@@ -3206,14 +3206,14 @@ do
                     end
                 end
                 
--- dragging
+-- dragging (支持鼠标和触摸)
 do 
-    local dCon, aCon, tCon  
+    local dCon, aCon, tCon  -- 用于存储鼠标和触摸的连接
     local mainFrame = instances.mainFrame
     local targetPos
     local isDragging = false
 
-
+    -- 鼠标拖动开始
     titleBar.InputBegan:Connect(function(io) 
         if io.UserInputType == Enum.UserInputType.MouseButton1 then
             local rootPos = mainFrame.AbsolutePosition
@@ -3240,7 +3240,7 @@ do
         end
     end)
 
-
+    -- 鼠标拖动结束
     titleBar.InputEnded:Connect(function(io)
         if io.UserInputType == Enum.UserInputType.MouseButton1 then
             if dCon then dCon:Disconnect() end
@@ -3250,34 +3250,39 @@ do
         end
     end)
 
-
+    -- 触摸拖动支持
     titleBar.InputBegan:Connect(function(io)
         if io.UserInputType == Enum.UserInputType.Touch then
             local rootPos = mainFrame.AbsolutePosition
             local startPos = io.Position
             
+            print("Touch started at: ", startPos) -- 调试触摸开始
             startPos = Vector2.new(startPos.X, startPos.Y)
             targetPos = UDim2.fromOffset(rootPos.X, rootPos.Y)
             isDragging = true
 
+            -- 动画更新
             aCon = renderService.RenderStepped:Connect(function(dt) 
                 if isDragging then
                     mainFrame.Position = mainFrame.Position:Lerp(targetPos, 1 - animSpeed^dt)
                 end
             end)
 
-            tCon = inputService.TouchMoved:Connect(function(touch, gpe)
+            -- 触摸移动
+            tCon = inputService.TouchMoved:Connect(function(touch)
                 local curPos = touch.Position
                 curPos = Vector2.new(curPos.X, curPos.Y)
                 local dest = rootPos + (curPos - startPos)
                 targetPos = UDim2.fromOffset(dest.X, dest.Y)
+                print("Touch moved to: ", curPos) -- 调试触摸移动
             end)
         end
     end)
 
-
+    -- 触摸拖动结束
     titleBar.InputEnded:Connect(function(io)
         if io.UserInputType == Enum.UserInputType.Touch then
+            print("Touch ended") -- 调试触摸结束
             if tCon then tCon:Disconnect() end
             if aCon then aCon:Disconnect() end
             isDragging = false
