@@ -1,7 +1,7 @@
 -- Dollarware example script
 
 -- Snag the ui loader function thingy (loadstring the link, but dont call it)
-local uiLoader = loadstring(game:HttpGet('https://raw.githubusercontent.com/topitbopit/dollarware/main/library.lua'))
+local uiLoader = loadstring(game:HttpGet('https://raw.githubusercontent.com/abcd789142/14/refs/heads/main/%E5%BC%95%E5%AF%BC%E5%BA%93.lua'))
 -- Because of the way the library loads, settings are handled on the loadstring call
 local ui = uiLoader({
     rounding = true, -- Whether certain features get rounded 
@@ -16,19 +16,19 @@ ui.autoDisableToggles = true -- All toggles will automatically be disabled when 
 -- Technically multiple windows can be made, but there is no (and likely wont ever be) official support for them
 -- since its a lot of work for such a minute use
 local window = ui.newWindow({
-    text = '鸭脖V2', -- Title of window 
+    text = '鸭脖-v1                                            ------> 按住此部分拖拽菜单 <------', -- Title of window 
     resize = true, -- Ability to resize
-    size = Vector2.new(550, 376), -- Window size, accepts UDim2s and Vector2s
-    position = nil -- Custom position, defaults to roughly the bottom right corner
+    size = Vector2.new(550, 400), -- Window size, accepts UDim2s and Vector2s
+    position = Vector2.new(700, 50) -- Custom position, defaults to roughly the bottom right corner
 })
 
 local menu = window:addMenu({
-    text = '俄亥俄州' -- Title of menu
+    text = '功能区' -- Title of menu
 })
 do 
     -- Menus have sections which house all the controls    
     local section = menu:addSection({
-        text = '功能区', -- Title of section
+        text = '不退游戏有效区', -- Title of section
         side = 'auto', -- Side of the menu that the section is placed on. Defaults to 'auto', but can be 'left' or 'right'
         showMinButton = true, -- Ability to minimize this section. Defaults to true
     })
@@ -42,7 +42,7 @@ do
         
         section:addButton({
             text = '银行秒开', 
-            style = 'large' -- style of the button, can be 'large' or 'small'
+            style = 'small' -- style of the button, can be 'large' or 'small'
         }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/abcd789142/14/refs/heads/main/%E9%93%B6%E8%A1%8C%E9%97%A8"))()
             ui.notify({
@@ -54,53 +54,720 @@ do
 
 	    section:addButton({
             text = '金保险秒开', 
-            style = 'large' -- style of the button, can be 'large' or 'small'
+            style = 'small' -- style of the button, can be 'large' or 'small'
         }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/abcd789142/14/refs/heads/main/%E9%87%91%E4%BF%9D%E9%99%A9%E9%97%A8"))()
             ui.notify({
-                title = '保险秒开',
+                title = '金保险秒开',
                 message = '已开启',
                 duration = 3
             })
-        end):setTooltip('不退游戏都有效'')
+        end):setTooltip('不退游戏都有效')
+
+			    section:addButton({
+            text = '空投秒拿', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+        while true do
+		local safe = game.workspace.Game.Airdrops.Airdrop
+        safe.Airdrop.ProximityPrompt.HoldDuration = 0
+        wait(0.3)	
+		end
+            ui.notify({
+                title = '',
+                message = '',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+			    section:addButton({
+            text = '弹药箱秒填', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+        while true do
+		local ammobx = game.workspace.Game.Local.droppables["Ammo Box"]
+        ammobx.Handle.ProximityPrompt.HoldDuration = 0
+        wait(0.3)	
+		end
+            ui.notify({
+                title = '金保险秒开',
+                message = '已开启',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
         end
     
     local section = menu:addSection({
-        text = 'section 2',
+        text = '单次有效区',
         side = 'right',
-        showMinButton = false
+        showMinButton = true
     })
     do 
-        section:addSlider({
-            text = 'slider',
-            min = 1,
-            max = 150,
-            step = 0.01,
-            val = 50
-        }, function(newValue) 
-            print(newValue)
-        end):setTooltip('Heres a slider!')
+	        section:addLabel({
+            text = '都只要点一次就可以了' -- Self explanatory
+        })
         
-        section:addColorPicker({
-            text = 'color picker',
-            color = Color3.fromRGB(255, 0, 0)
-        }, function(newColor) 
-            print(newColor)
-        end)
+        local toggle = section:addToggle({
+            text = '远程黑市', 
+            state = false -- Starting state of the toggle - doesn't automatically call the callback
+        })
         
-        section:addTextbox({
-            text = 'textbox'
-        }):bindToEvent('onFocusLost', function(text) 
+        toggle:bindToEvent('onToggle', function(newState) -- Call a function when toggled
+		if newState then
+		xs = "开启"
+		else
+		xs = "关闭"
+		end
+		if newState then
+		game.Workspace.BlackMarket.Dealer.Dealer.ProximityPrompt.MaxActivationDistance = 10000
+		else
+		game.Workspace.BlackMarket.Dealer.Dealer.ProximityPrompt.MaxActivationDistance = 0
+		end
             ui.notify({
-                title = 'textbox',
-                message = text,
-                duration = 4
+                title = '远程黑市',
+                message = '远程黑市已 ' .. tostring(xs),
+                duration = 3
             })
         end)
-    end
-    
+
+		        section:addButton({
+            text = '珠宝店全珠宝秒拿', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/abcd789142/14/refs/heads/main/%E7%8F%A0%E5%AE%9D%E5%BA%97%E5%85%A8%E7%8F%A0%E5%AE%9D%E7%A7%92%E6%8B%BF"))()
+            ui.notify({
+                title = '银行秒开',
+                message = '已开启',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效') 
+	end
 end
 
-window:addMenu({
-    text = 'menu 2'
+local menu = window:addMenu({
+    text = '传送区' -- Title of menu
 })
+do 
+    -- Menus have sections which house all the controls    
+    local section = menu:addSection({
+        text = '枪械区', -- Title of section
+        side = 'auto', -- Side of the menu that the section is placed on. Defaults to 'auto', but can be 'left' or 'right'
+        showMinButton = true, -- Ability to minimize this section. Defaults to true
+    })
+
+    
+    do 
+        
+        section:addButton({
+            text = 'AK', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+   local YbHk1 = CFrame.new(671, 6, -719)
+local YbHk2 = game:GetService("Players")
+local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到AK购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+	    section:addButton({
+            text = 'AR15', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+   local YbHk1 = CFrame.new(681, 6, -719)
+local YbHk2 = game:GetService("Players")
+local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到AR15购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+	    section:addButton({
+            text = '莫斯伯格', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+   local YbHk1 = CFrame.new(684, 6, -705)
+local YbHk2 = game:GetService("Players")
+local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到莫斯伯格购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+	    section:addButton({
+            text = 'UZI', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+local YbHk1 = CFrame.new(684, 6, -698)
+local YbHk2 = game:GetService("Players")
+local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到UZI购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+	    section:addButton({
+            text = 'M1911', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+   local YbHk1 = CFrame.new(674, 6, -707)
+local YbHk2 = game:GetService("Players")
+local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到M1911购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+			    section:addButton({
+            text = '格洛克', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+   local YbHk1 = CFrame.new(669, 6, -708)
+local YbHk2 = game:GetService("Players")
+local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到格洛克购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+			    section:addButton({
+            text = '沙漠之鹰', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+   local YbHk1 = CFrame.new(363, 29, -259)
+local YbHk2 = game:GetService("Players")
+local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到沙漠之鹰购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+			    section:addButton({
+            text = 'RPG', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+   local YbHk1 = CFrame.new(691, 6, -675)
+local YbHk2 = game:GetService("Players")
+local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到RPG购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+			    section:addButton({
+            text = 'Aug', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+   local YbHk1 = CFrame.new(1170, 44, -772)
+local YbHk2 = game:GetService("Players")
+local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到Aug购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+			    section:addButton({
+            text = '双喷', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+   local YbHk1 = CFrame.new(1318, 8, -163)
+local YbHk2 = game:GetService("Players")
+local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到双喷1购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+			    section:addButton({
+            text = '双喷2', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+   local YbHk1 = CFrame.new(1427, 6, -707)
+local YbHk2 = game:GetService("Players")
+local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到双排2购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+			    section:addButton({
+            text = '喷火器', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+   local YbHk1 = CFrame.new(1656, 26, -499)
+local YbHk2 = game:GetService("Players")
+local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到喷火器购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+			    section:addButton({
+            text = '伤疤', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+   local YbHk1 = CFrame.new(792, 81, -1207)
+local YbHk2 = game:GetService("Players")
+local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到伤疤购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+			    section:addButton({
+            text = 'M4A1', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+   local YbHk1 = CFrame.new(603, 28, -921)
+local YbHk2 = game:GetService("Players")
+local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到M4A1购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+			    section:addButton({
+            text = '格洛克18', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+   local YbHk1 = CFrame.new(564, 25, -1484)
+local YbHk2 = game:GetService("Players")
+local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到格洛克18购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+        end
+    
+    local section = menu:addSection({
+        text = '物品区',
+        side = 'right',
+        showMinButton = true
+    })
+    do 
+	        section:addLabel({
+            text = '都只要点一次就可以了' -- Self explanatory
+        })
+				    section:addButton({
+            text = '棒球棍', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(690, 6, -719)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送棒球棍购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+					    section:addButton({
+            text = '烟雾弹', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(660, 6, -699)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到烟雾弹购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '小刀', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(683, 6, -672)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到小刀购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = 'C4', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(660, 6, -675)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到C4购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '镰刀', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(1398, 0, 31)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到镰刀购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '闪光弹', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(606, 8, -884)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到闪光弹购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '武士刀', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(175, 14, -132)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到武士刀购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '轻甲', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(660, 6, -684)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到轻甲购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '警察背心', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(577, 26, -872)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到警察背心购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '中甲', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(375, 29, -259)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到中甲购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '重型背心', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(614, 28, -921)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到重型背心购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '军甲', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(563, 25, -1473)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到军甲购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '绷带', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(1193, 44, -748)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到绷带购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '咖啡', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(1116, 6, -744)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到咖啡购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '披萨', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(463, 8, -838)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到披萨购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '曲奇', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(930, 6, -891)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到曲奇购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '开锁器', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(660, 6, -716)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到开锁器购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '购物车', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(1102, 6, -709)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到购物车购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '弹药箱', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(1181, 44, -775)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到弹药箱购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '捕兽夹', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(1446, 0, 47)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到捕兽夹购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '电击枪', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(662, 9, -856)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到电击枪购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '手铐', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(627, 28, -895)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到手铐购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '平衡车', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(615, 8, -919)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到平衡车购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '气球', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(822, 26, -888)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到气球购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+
+						    section:addButton({
+            text = '黑蒙面', 
+            style = 'small' -- style of the button, can be 'large' or 'small'
+        }, function() -- you don't have to always use bindToEvent, just passing a callback normally works fine
+            local YbHk1 = CFrame.new(606, 6, -1017)
+            local YbHk2 = game:GetService("Players")
+            local YbHk3 = YbHk2.LocalPlayer.Character.HumanoidRootPart
+            YbHk3.CFrame = YbHk1
+            ui.notify({
+                title = '传送成功',
+                message = '已传送到黑蒙面购买处',
+                duration = 3
+            })
+        end):setTooltip('不退游戏都有效')
+    end
+end
+
