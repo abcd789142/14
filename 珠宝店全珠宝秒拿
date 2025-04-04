@@ -1,0 +1,16 @@
+local function removePickupCooldown(parent)
+    for _, child in ipairs(parent:GetDescendants()) do
+        if child:IsA("ProximityPrompt") then
+            -- 移除按住时间 & 冷却时间
+            child.HoldDuration = 0
+            child.ClickablePrompt = true  -- 允许点击触发
+        end
+    end
+end
+
+-- 应用到 HighYieldSpawns 和 LowYieldSpawns
+local highYield = workspace.GemRobbery.JewelryCases.HighYieldSpawns
+local lowYield = workspace.GemRobbery.JewelryCases.LowYieldSpawns
+
+removePickupCooldown(highYield)
+removePickupCooldown(lowYield)
